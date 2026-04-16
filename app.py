@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Wed Apr 15 22:27:03 2026
+
+@author: RuOlvera
+"""
+
+# -*- coding: utf-8 -*-
+"""
 =============================================================
  Georgia Cancer CEA — NIH vs Community Decision Tree (Web App)
 =============================================================
@@ -48,26 +55,20 @@ HTML = r'''<!DOCTYPE html>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    /* Palette:
-       #64242F  — deep burgundy (darkest accent / backgrounds)
-       #B44446  — medium red (primary accent)
-       #FC8F8F  — light coral/pink (highlights / neon equiv)
-       #DFD9D8  — warm off-white (text / cream)
-       #000000  — black */
-    --neon:         #FC8F8F;   /* primary coral accent (brand/highlights) */
-    --orange:       #B44446;   /* secondary red accent */
+    --neon:         #FC8F8F;
+    --orange:       #B44446;
     --orange-light: #FC8F8F;
-    --cream:        #DFD9D8;   /* primary readable text */
-    --navy:         #64242F;   /* deep panel base */
-    --purple:       #3a1018;   /* deepest background (darkened burgundy) */
+    --cream:        #DFD9D8;
+    --navy:         #64242F;
+    --purple:       #3a1018;
     --black:        #000000;
-    --gray-1:       #DFD9D8;   /* lightest text (off-white) */
-    --gray-2:       #FC8F8F;   /* light coral */
-    --gray-3:       #e8a0a0;   /* mid coral */
-    --gray-4:       #cc7070;   /* muted coral */
-    --gray-5:       #B44446;   /* medium red */
-    --gray-6:       #8a3032;   /* dark red */
-    --gray-7:       #64242F;   /* deep burgundy */
+    --gray-1:       #DFD9D8;
+    --gray-2:       #FC8F8F;
+    --gray-3:       #e8a0a0;
+    --gray-4:       #cc7070;
+    --gray-5:       #B44446;
+    --gray-6:       #8a3032;
+    --gray-7:       #64242F;
 
     --neon-dim:    #FC8F8F33;
     --orange-dim:  #B4444633;
@@ -389,11 +390,6 @@ HTML = r'''<!DOCTYPE html>
             <div class="m-main" id="inc-qaly">—</div>
             <div class="m-sub">NIH – Community</div>
           </div>
-          <div class="metric-card" style="background:linear-gradient(135deg, rgba(100,36,47,.6), rgba(0,0,0,.5));border:1px solid var(--border);">
-            <div class="m-title" style="color:#ffffff">INMB</div>
-            <div class="m-main" id="inmb">—</div>
-            <div class="m-sub">at current WTP</div>
-          </div>
           <div class="metric-card" style="background:linear-gradient(135deg, rgba(58,16,24,.7), rgba(0,0,0,.5));border:1px solid var(--gray-5);">
             <div class="m-title" style="color:var(--orange)">ICER</div>
             <div class="m-main" id="icer-metric">—</div>
@@ -546,12 +542,11 @@ function calc(p) {
   const incCost = costA - costB;
   const incQaly = p.qalyA - p.qalyB;
   const icer = incQaly > 0 ? incCost / incQaly : (incCost <= 0 ? -Infinity : Infinity);
-  const inmb = incQaly * p.wtp - incCost;
   const evA_rec = p.costA * 1.35;
   const evA_ok  = p.costA * 0.85;
   const evB_rec = p.costB * 1.30;
   const evB_ok  = p.costB * 0.85;
-  return { costA, costB, incCost, incQaly, icer, inmb, evA_rec, evA_ok, evB_rec, evB_ok };
+  return { costA, costB, incCost, incQaly, icer, evA_rec, evA_ok, evB_rec, evB_ok };
 }
 
 function getParams() {
@@ -631,13 +626,12 @@ function showTab(name, btn) {
 
 function drawTree(p, r) {
   const W=960, H=580;
-  /* New palette */
-  const CORAL   = '#FC8F8F';  /* light coral — primary accent (was neon/magenta) */
-  const RED     = '#B44446';  /* medium red — secondary accent (was orange) */
-  const BURGUNDY= '#64242F';  /* deep burgundy — panel base (was navy/purple) */
-  const OFFWHITE= '#DFD9D8';  /* warm off-white — readable text (was cream) */
-  const DARK    = '#3a1018';  /* darkened burgundy background */
-  const LINE    = '#B44446';  /* border/line color */
+  const CORAL   = '#FC8F8F';
+  const RED     = '#B44446';
+  const BURGUNDY= '#64242F';
+  const OFFWHITE= '#DFD9D8';
+  const DARK    = '#3a1018';
+  const LINE    = '#B44446';
 
   const dec={x:65,y:290};
   const cA={x:235,y:165}, cB={x:235,y:415};
@@ -753,7 +747,6 @@ function update() {
 
   document.getElementById('inc-cost').textContent = fmt(r.incCost);
   document.getElementById('inc-qaly').textContent = r.incQaly.toFixed(2);
-  document.getElementById('inmb').textContent = fmt(r.inmb);
   document.getElementById('icer-metric').textContent = isFinite(r.icer) ? fmt(r.icer) : (r.icer===-Infinity ? 'Dominant' : 'Dominated');
 
   const icerForMarker = isFinite(r.icer) && r.icer > 0 ? r.icer : 0;
@@ -768,7 +761,7 @@ function update() {
   } else {
     const ratio = r.icer / p.wtp;
     interp = `At an ICER of ${fmt(r.icer)}/QALY and a WTP of ${fmt(p.wtp)}/QALY (ratio ${ratio.toFixed(2)}), `+
-             (ratio < 1 ? `NIH care is cost-effective. INMB of ${fmt(r.inmb)} indicates positive net value.` :
+             (ratio < 1 ? `NIH care is cost-effective.` :
               `NIH care exceeds the WTP threshold. Sensitivity analyses (PSA, threshold) are needed before adoption.`);
   }
   document.getElementById('interpretation').textContent = interp;
@@ -799,9 +792,7 @@ function update() {
   const icerFmt = isFinite(r.icer) ? fmt(r.icer)+'/QALY' : (r.icer===-Infinity ? 'Dominant' : 'Dominated');
   document.getElementById('breakdown-foot').innerHTML = `
     <tr><td colspan="3" style="color:#FC8F8F">Incremental Cost-Effectiveness Ratio</td>
-        <td style="color:#FC8F8F;font-family:'DM Mono';font-weight:700">${icerFmt}</td></tr>
-    <tr><td colspan="3" style="color:#DFD9D8">Incremental Net Monetary Benefit @ ${fmt(p.wtp)}/QALY</td>
-        <td style="color:${r.inmb>=0?'#FC8F8F':'#e8a0a0'};font-family:'DM Mono';font-weight:700">${fmt(r.inmb)}</td></tr>`;
+        <td style="color:#FC8F8F;font-family:'DM Mono';font-weight:700">${icerFmt}</td></tr>`;
 
   drawTree(p, r);
 }
@@ -848,7 +839,6 @@ def calculate():
         icer = "Dominant"
     else:
         icer = "Dominated"
-    inmb = inc_qaly * d["wtp"] - inc_cost
 
     return jsonify({
         "costA_disc": round(costA),
@@ -856,7 +846,6 @@ def calculate():
         "inc_cost":   round(inc_cost),
         "inc_qaly":   round(inc_qaly, 3),
         "icer":       icer if isinstance(icer, str) else round(icer),
-        "inmb":       round(inmb),
     })
 
 
